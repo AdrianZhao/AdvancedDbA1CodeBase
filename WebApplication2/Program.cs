@@ -207,20 +207,36 @@ app.MapGet("/stores/byProvince", (RefactorContext db) =>
     try
     {
         // https://learn.microsoft.com/en-us/dotnet/api/system.linq.enumerable.groupby?view=net-6.0
+        /*
         HashSet<StoreProvince> storesByProvince = db.StoreLocations
                 .GroupBy(sl => sl.Province)
                 .Where(sl => sl.Any())
                 .Select(sbp => new StoreProvince
                 {
                     Province = sbp.Key,
-                    Stores = new HashSet<WebApplication2.Models.StoreLocation>(
-                        sbp.Select(s => new WebApplication2.Models.StoreLocation
+                    Stores = new HashSet<WebApplication2.Models.StoreLocation>(sbp
+                        .Select(s => new WebApplication2.Models.StoreLocation
                         {
                             Province = s.Province,
                             Number = s.Number,
                             StreetName = s.StreetName
                         }))
                 }).ToHashSet();
+        */
+        
+        var storesByProvince = db.StoreLocations
+            .GroupBy(s => s.Province)
+            .Where(group => group.Any())
+            .Select(group => new
+            {
+                Province = group.Key,
+                Stores = new HashSet<WebApplication2.Models.StoreLocation>(group.Select(s => new WebApplication2.Models.StoreLocation
+                {
+                    Province = s.Province,
+                    Number = s.Number,
+                    StreetName = s.StreetName
+                }))
+            }).ToList(); 
         if (storesByProvince != null)
         {
             return Results.Ok(storesByProvince);
